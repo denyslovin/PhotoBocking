@@ -1,0 +1,286 @@
+<?php 
+// application/layouts/scripts/layout.phtml
+
+echo $this->doctype() ?>
+        <?php $menu = $this->viewMenu() ?>
+
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <title><?php echo $menu[2]?> </title>
+  <?php //$this->headLink()->appendStylesheet('/quickstart/public/css/global.css') ?>
+  <?php echo $this->headLink()->prependStylesheet($this->baseUrl().'/css/main.css'); ?>
+  <?php $this->headScript()->appendFile( $this->baseUrl() . '/js/jquery.js'); ?>
+  <?php $this->headScript()->appendFile( $this->baseUrl() . '/js/jquery.ingrid.js'); ?>
+  <?php $this->headScript()->appendFile( $this->baseUrl() . '/js/jquery.cookie.js'); ?>
+  <?php echo $this->headScript()->appendFile( $this->baseUrl() . '/js/jquery.tabify.js'); ?>
+
+<?php 
+	if ( $this->ckeditor ) { 
+		echo $this->headScript()->appendFile( $this->baseUrl().'/js/ckeditor/ckeditor.js');
+ 	}
+?>
+
+<style media="all" type="text/css">@import "<?php echo $this->baseUrl() ?>/css/ingrid.css";</style>
+<style type="text/css">
+
+#grayscale{
+  background-color: #000000;
+    display: none;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+    z-index: 9999;  
+    background: url("<?php echo $this->base_url ?>img/bg-grayscale.png") repeat scroll 0 0 transparent;
+}
+#top-menu{
+  background: url("/img/bg-menu.png") repeat scroll 0 0 transparent;
+  height: 70px;
+}
+#tabs{
+  height: 36px;
+  width: 100%;
+}
+#top-menu ul{
+  border: none;
+  background: transparent;
+  list-style: none;
+  float: left;
+  margin-top: 25px;
+  width: 80%;
+}
+
+#header-logo{
+  margin-top: 25px; 
+    color: #AAAAAA;
+    font-family: arial;
+    font-weight: normal;  
+}
+
+#top-menu ul li{
+  float: left;
+  padding-left: 10px;
+  height: 41px;
+}
+#top-menu ul li.selected{
+    background-image: url("/img/selected-main.png");
+    background-position: center bottom;
+    background-repeat: no-repeat;
+}
+
+#top-menu a{
+  color: #AAAAAA;
+  font-weight: normal;
+  font-family: arial;
+}
+
+#left-side{
+  width: 12%;
+  float: left;
+}
+
+#left-side ul{
+  border: none;
+  background: transparent;
+  list-style: none;
+}
+#left-side ul li{
+  
+}
+
+#left-side ul li.selected{
+  
+}
+
+#left-side ul li a{
+  color: #AAAAAA;
+  font-weight: normal;
+  font-family: arial;
+  
+}
+
+#content{
+  overflow: hidden;
+}
+
+ul{
+  margin: 0px;
+  padding: 0px;
+}
+
+body { font: 0.8em Arial, sans-serif; }
+#menu { padding: 0; }
+#menu li { display: inline; }
+#menu li { background: #ccf; padding: 10px; float:left; border-right: 1px solid #ccf; border-bottom: none; text-decoration: none; color: #000; font-weight: bold;}
+#menu li.active { background: #eef; }
+#menu li a{
+    
+}
+
+#menu li a.a-for-close{
+    color: #000000;
+}
+.content { float: left; clear: both; border: 1px solid #ccf; border-top: none; border-left: none; background: #eef; padding: 10px 20px 20px; width: 400px; }
+
+#content-options{
+    display: block;
+    float: left;
+    overflow: hidden;
+    width: 88%;
+}
+
+#options{
+    width: 100%;
+}
+
+#message{
+    background-color: #DDDDDD;
+    display: none;
+    height: 300px;
+    left: 50%;
+    margin-left: -150px;
+    position: fixed;
+    top: 50px;
+    width: 400px;
+}
+
+
+</style>
+
+<script type="text/javascript">
+
+var html_tabs;
+var tabs_arr = new Array();
+var currentStyle;
+
+function showWindow(url, tr){
+
+  //alert(url);
+
+  $.post(url + '/message', function(data) {
+
+    //var html = $("#content").html();
+    //html += '<div class="content"  style="display:none" id="' + id + '">' + data +' <div id="content-' + id + '"> 123<div>' + '</div>';
+    $('#message').html(data);
+    $('#message').css('display','block');
+    $('#grayscale').css('display','block');
+
+    //currentStyle = 
+
+  });
+
+
+}
+
+function hideWindow(id){
+  var el = $("tr[_selected='true']");
+  el.removeClass('grid-row-sel grid-row-hover');
+  el.addClass('grid-row-style1');
+  el.attr('_selected','false');
+
+  $('#message').html('');
+  $('#message').css('display','none');
+  $('#grayscale').css('display','none');
+
+}
+
+function addItemToTabs(id, name){
+
+  if (!$('#content-'+id).html()){
+  
+    html_tabs += '<li class=""><a href="#' + id + '"'+' id="' + id  +'-tab-main">' + name + '</a><a class="a-for-close" id="id-a-for-close-'+id+'" href="#">X</a></li>';
+    
+    $("#menu").html(html_tabs);
+    $("#id-a-for-close-"+id).live('click',function(){
+	$('#'+id + '-tab-main').parent().remove();
+	$('#'+id).remove();
+	html_tabs = $('#menu').html();
+    });
+
+    $( '#menu').tabify();
+
+    $.post('<?php echo $this->base_url ?>'+id, function(data) {
+
+      var html = $("#content").html();
+      html += '<div class="content"  style="display:none" id="' + id + '">' + data +' <div id="content-' + id + '"> 123<div>' + '</div>';
+      $('#content').html(html);
+
+    });
+  }
+  return false;
+}
+
+function showContent(id, idSub){
+    //alert(id + ' -> ' + idSub);
+
+  //html_tabs += '<li class=""><a href="#' + id + '">' + name + '</a></li>';
+  //$("#menu").html(html_tabs);
+
+  //$('#menu').tabify();
+  
+  
+
+  $.post(idSub, function(data) {
+
+    //var html = $("#content-"+id).html();
+    html = data;
+    //'<div class="content-' + id + '"  style="display:none" id="' + id + '">' + data +' <div id="content-' + id + '"> 123<div>' + '</div>';
+    $('#content-'+id).html(html);
+
+  });  
+  
+
+  return false;
+}
+
+</script>
+</head> 
+<body>
+<div id='grayscale'>
+  <div id="message">
+  </div>
+</div>
+
+<div id="top-menu"> 
+    <?php echo $menu[0] ?>
+    <div id="header-logo" style="float: left">
+        <?php echo $this->loggedInUser(); ?>
+    </div>    
+</div>
+<div id='tabs'>
+  <ul id="menu">
+      <li class="active"><a href="#contentHome">Home</a></li>
+      <li class=""><a href="#contentHome1">1</a></li>
+  </ul>
+</div>
+
+<div>
+
+  <div id="content" >
+
+    <?php echo $this->layout()->content ?>
+
+    <div class="content" id="contentHome">Content for Home</div>
+    <div class="content" id="contentHome1">Content for Home1</div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  $("#save-btn").click(function() {
+    alert("Handler for .click() called.");
+  });
+    
+  $( document ).ready(function() {
+    html_tabs = $('#menu').html();
+    $('#menu').tabify();
+
+    $("#save-btn").click(function() {
+      alert("Handler for .click() called.");
+    });
+
+  });
+
+</script>
+</body>
+</html>
