@@ -4,8 +4,9 @@ class IndexController extends Zend_Controller_Action
 {
 	protected $base_url;
 
-	public function init()
-	{
+	public function init(){
+	    $this->_helper->layout->disableLayout();
+	    new Model_JGApi_Studio();
 		$config = new Zend_Config_Ini('../application/configs/application.ini', 'staging');	
 		$this->base_url = $config->appUrl->path;
 		$this->view->base_url = $config->appUrl->path;
